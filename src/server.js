@@ -17,7 +17,11 @@ const wss = new WebSocket.Server({
   server,
 });
 
+const sockets = [];
+
 wss.on("connection", (socket) => {
+  sockets.push(socket);
+
   console.log("Connection to the Browser: ✅");
 
   socket.on("close", () => {
@@ -25,7 +29,7 @@ wss.on("connection", (socket) => {
   });
 
   socket.on("message", (message) => {
-    console.log(message.toString());
+    sockets.forEach((aSocket) => aSocket.send(message.toString()));
   });
 
   socket.send("Hello World!");
