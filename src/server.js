@@ -20,6 +20,7 @@ const wss = new WebSocket.Server({
 const sockets = [];
 
 wss.on("connection", (socket) => {
+  socket["nickname"] = "Anonymous";
   sockets.push(socket);
 
   console.log("Connection to the Browser: ✅");
@@ -29,10 +30,19 @@ wss.on("connection", (socket) => {
   });
 
   socket.on("message", (message) => {
-    sockets.forEach((aSocket) => aSocket.send(message.toString()));
-  });
+    const { type, payload } = JSON.parse(message.toString());
 
-  socket.send("Hello World!");
+    switch (type) {
+      case "new_message":
+        sockets.forEach((aSocket) =>
+          aSocket.send(`${socket.nickname}: ${payload}`)
+        );
+        break;
+      case "nickname":
+        socket["nickname"] = payload;
+        break;
+    }
+  });
 });
 
 server.listen(3000, handleListen);
